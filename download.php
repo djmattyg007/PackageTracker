@@ -1,14 +1,14 @@
 <?php
 declare(strict_types=1);
 
-namespace MattyG\DependencyTracker\Download;
+namespace MattyG\PackageTracker\Download;
 
 use Composer\Semver\Semver;
 use Doctrine\Common\Cache\CacheProvider;
-use MattyG\DependencyTracker\Cli\Stdio;
-use MattyG\DependencyTracker\Provider\FetchAvailableVersionsFailureException;
-use MattyG\DependencyTracker\Provider\ProviderFactory;
-use MattyG\DependencyTracker\Provider\ProviderInterface;
+use MattyG\PackageTracker\Cli\Stdio;
+use MattyG\PackageTracker\Provider\FetchAvailableVersionsFailureException;
+use MattyG\PackageTracker\Provider\ProviderFactory;
+use MattyG\PackageTracker\Provider\ProviderInterface;
 
 class Downloader
 {

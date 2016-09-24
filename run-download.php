@@ -20,7 +20,7 @@ if ($getopt->hasErrors() || $filename === null) {
     exit(Aura\Cli\Status::USAGE);
 }
 
-$downloader = $di->newInstance("MattyG\\DependencyTracker\\Download\\Downloader", array("cacheLifetime" => 43200));
+$downloader = $di->newInstance("MattyG\\PackageTracker\\Download\\Downloader", array("cacheLifetime" => 43200));
 
 $packageList = json_decode(file_get_contents($argv[1]), true);
 $downloader->downloadData($packageList);

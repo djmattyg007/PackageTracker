@@ -1,17 +1,17 @@
 <?php
 declare(strict_types=1);
 
-namespace MattyG\DependencyTracker\Check;
+namespace MattyG\PackageTracker\Check;
 
 use Composer\Semver\Comparator;
 use Composer\Semver\VersionParser;
 use Doctrine\Common\Cache\CacheProvider;
-use MattyG\DependencyTracker\Cli\Stdio;
-use MattyG\DependencyTracker\Cli\Table;
-use MattyG\DependencyTracker\Cli\TableFactory;
-use MattyG\DependencyTracker\Cli\TableColumnFactory;
-use MattyG\DependencyTracker\Cli\TableRow;
-use MattyG\DependencyTracker\Cli\TableRowFactory;
+use MattyG\PackageTracker\Cli\Stdio;
+use MattyG\PackageTracker\Cli\Table;
+use MattyG\PackageTracker\Cli\TableFactory;
+use MattyG\PackageTracker\Cli\TableColumnFactory;
+use MattyG\PackageTracker\Cli\TableRow;
+use MattyG\PackageTracker\Cli\TableRowFactory;
 
 class Checker
 {

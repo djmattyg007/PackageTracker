@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace MattyG\DependencyTracker\Provider;
+namespace MattyG\PackageTracker\Provider;
 
 use Aura\Di\Container as DiContainer;
 use Composer\Semver\VersionParser;

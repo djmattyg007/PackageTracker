@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace MattyG\DependencyTracker\Cli;
+namespace MattyG\PackageTracker\Cli;
 
 use Aura\Cli\Stdio as BaseStdio;
 use Aura\Cli\Stdio\Formatter as BaseFormatter;
