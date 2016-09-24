@@ -20,6 +20,9 @@ final class ProviderFactory
      * @var array
      */
     private $providerTypes = array(
+        "luarocks-lua51" => LuaRocks51::class,
+        "luarocks-lua52" => LuaRocks52::class,
+        "luarocks-lua53" => LuaRocks53::class,
         "npm" => Npm::class,
         "packagist" => Packagist::class,
         "pypi" => PyPI::class,
@@ -59,18 +62,117 @@ final class FetchAvailableVersionsFailureException extends Exception
 {
 }
 
-trait ProviderHelperTrait
+abstract class LuaRocks implements ProviderInterface
 {
     /**
-     * @param array $versions
-     * @return array
+     * @var Guzzle
      */
-    protected function filterDevVersions(array $versions): array
+    private $guzzle;
+
+    /**
+     * @var VersionParser
+     */
+    private $versionParser;
+
+    /**
+     * @var array
+     */
+    private static $packageData = array();
+
+    /**
+     * @param Guzzle $guzzle
+     * @param VersionParser $versionParser
+     */
+    public function __construct(Guzzle $guzzle, VersionParser $versionParser)
     {
-        return array_filter($versions, function($version) {
-            return VersionParser::parseStability($version) !== "dev";
-        });
+        $this->guzzle = $guzzle;
+        $this->versionParser = $versionParser;
     }
+
+    /**
+     * @param string $packageName
+     * @return array
+     * @throws FetchAvailableVersionsFailureException
+     */
+    public function fetchAvailableVersions(string $packageName): array
+    {
+        $versions = $this->fetchPackageData($packageName);
+
+        $normalisedVersions = array_map(array($this, "normaliseVersion"), $versions);
+        return array_unique(array_filter($normalisedVersions));
+    }
+
+    /**
+     * @return string
+     */
+    public function getLuaVersion(): string
+    {
+        return static::LUA_VERSION;
+    }
+
+    /**
+     * @param string $packageName
+     * @return array
+     * @throws FetchAvailableVersionsFailureException
+     */
+    private function fetchPackageData(string $packageName): array
+    {
+        if (isset(self::$packageData[static::LUA_VERSION]) === false) {
+            $this->loadPackageData();
+        }
+
+        if (isset(self::$packageData[static::LUA_VERSION][$packageName])) {
+            return array_keys(self::$packageData[static::LUA_VERSION][$packageName]);
+        } else {
+            throw new FetchAvailableVersionsFailureException();
+        }
+    }
+
+    /**
+     * @throws FetchAvailableVersionsFailureException
+     */
+    private function loadPackageData()
+    {
+        try {
+            $response = $this->guzzle->request("GET", "https://luarocks.org/manifest-5.1.json");
+            if ($response->getStatusCode() !== 200) {
+                throw new FetchAvailableVersionsFailureException();
+            }
+        } catch (GuzzleException $e) {
+            throw new FetchAvailableVersionsFailureException();
+        }
+
+        $content = json_decode($response->getBody()->getContents(), true);
+        self::$packageData[static::LUA_VERSION] = $content["repository"];
+    }
+
+    /**
+     * @param string $version
+     * @return string
+     */
+    private function normaliseVersion(string $version): string
+    {
+        $result = preg_match('/^(.+)-\d{1,2}$/', $version, $matches);
+        if (!$result) {
+            return "";
+        }
+        return $this->versionParser->normalize($matches[1]);
+    }
+}
+
+class LuaRocks51 extends LuaRocks
+{
+    const LUA_VERSION = "5.1";
+}
+
+class LuaRocks52 extends LuaRocks
+{
+    const LUA_VERSION = "5.2";
+}
+
+class LuaRocks53 extends LuaRocks
+{
+    const LUA_VERSION = "5.3";
 }
 
 class Npm implements ProviderInterface
@@ -108,7 +210,7 @@ class Npm implements ProviderInterface
                 throw new FetchAvailableVersionsFailureException();
             }
         } catch (GuzzleException $e) {
-            throw new FetchAvailableVersionsFailure();
+            throw new FetchAvailableVersionsFailureException();
         }
 
         $content = json_decode($response->getBody()->getContents(), true);
@@ -121,8 +223,6 @@ class Npm implements ProviderInterface
 
 class Packagist implements ProviderInterface
 {
-    use ProviderHelperTrait;
-
     /**
      * @var Guzzle
      */
@@ -149,7 +249,7 @@ class Packagist implements ProviderInterface
                 throw new FetchAvailableVersionsFailureException();
             }
         } catch (GuzzleException $e) {
-            throw new FetchAvailableVersionsFailure();
+            throw new FetchAvailableVersionsFailureException();
         }
 
         $content = json_decode($response->getBody()->getContents(), true);
@@ -158,6 +258,17 @@ class Packagist implements ProviderInterface
 
         $filteredVersions = $this->filterDevVersions($versions);
         return $filteredVersions;
+    }
+
+    /**
+     * @param array $versions
+     * @return array
+     */
+    protected function filterDevVersions(array $versions): array
+    {
+        return array_filter($versions, function($version) {
+            return VersionParser::parseStability($version) !== "dev";
+        });
     }
 }
 
@@ -196,7 +307,7 @@ class PyPI implements ProviderInterface
                 throw new FetchAvailableVersionsFailureException();
             }
         } catch (GuzzleException $e) {
-            throw new FetchAvailableVersionsFailure();
+            throw new FetchAvailableVersionsFailureException();
         }
 
         $content = json_decode($response->getBody()->getContents(), true);
@@ -242,7 +353,7 @@ class RubyGems implements ProviderInterface
                 throw new FetchAvailableVersionsFailureException();
             }
         } catch (GuzzleException $e) {
-            throw new FetchAvailableVersionsFailure();
+            throw new FetchAvailableVersionsFailureException();
         }
 
         $content = json_decode($response->getBody()->getContents(), true);

@@ -26,4 +26,4 @@ $packageList = json_decode(file_get_contents($argv[1]), true);
 $packageData = $checker->checkVersions($packageList);
 
 $tableFormatter = $di->newInstance("MattyG\\PackageTracker\\Check\\TableFormatter");
-echo $tableFormatter->prepareTable($packageData);
+$stdio->out($tableFormatter->prepareTable($packageData));
