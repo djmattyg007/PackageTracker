@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-$di = require(__DIR__ . "/bootstrap.php");
+$di = require(dirname(__DIR__) . "/src/bootstrap.php");
 $di->values["cli_options"] = array("v");
 
 $stdio = $di->get("cli_stdio");
@@ -20,7 +20,10 @@ if ($getopt->hasErrors() || $filename === null) {
     exit(Aura\Cli\Status::USAGE);
 }
 
-$downloader = $di->newInstance("MattyG\\PackageTracker\\Download\\Downloader", array("cacheLifetime" => 43200));
+$checker = $di->newInstance("MattyG\\PackageTracker\\Check\\Checker");
 
 $packageList = json_decode(file_get_contents($argv[1]), true);
-$downloader->downloadData($packageList);
+$packageData = $checker->checkVersions($packageList);
+
+$tableFormatter = $di->newInstance("MattyG\\PackageTracker\\Check\\TableFormatter");
+$stdio->out($tableFormatter->prepareTable($packageData));

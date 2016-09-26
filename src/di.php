@@ -9,7 +9,7 @@ $di = $builder->newInstance(true);
 $di->types["Aura\\Di\\Container"] = $di;
 
 $di->types["Doctrine\\Common\\Cache\\CacheProvider"] = $di->lazyGet("cache");
-$di->set("cache", $di->lazyNew("Doctrine\\Common\\Cache\\FilesystemCache", array("directory" => __DIR__ . "/cache")));
+$di->set("cache", $di->lazyNew("Doctrine\\Common\\Cache\\FilesystemCache", array("directory" => dirname(__DIR__) . "/cache")));
 $di->types["GuzzleHttp\\Client"] = $di->lazyGet("guzzle");
 $di->set("guzzle", $di->lazyNew("GuzzleHttp\\Client", array("config" => array("http_errors" => false))));
 

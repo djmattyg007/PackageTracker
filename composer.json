@@ -8,5 +8,10 @@
         "doctrine/cache": "^1.6",
         "guzzlehttp/guzzle": "^6.2",
         "zf1/zend-text": "^1.12"
+    },
+    "autoload": {
+        "psr-4": {
+            "MattyG\\PackageTracker\\": "src"
+        }
     }
 }
