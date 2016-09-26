@@ -1,3 +1,5 @@
 /cache/
+!/cache/.gitkeep
 /var/
+!/var/classgen/.gitkeep
 /vendor/
